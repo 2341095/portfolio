@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kensaku AI | Tone & Language Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Kensaku AI</span>
+        </div>
+        <a href="index.html" class="back-btn">Portfolioに戻る</a>
+    </header>
+
+    <main class="app-container">
+        <div class="header-text">
+            <h1 class="gradient-text">思い通りの言葉へ、瞬時に。</h1>
+            <p>文章の語調や言語をAIが自然に変換します。シーンに合わせた最適な表現を見つけましょう。</p>
+        </div>
+
+        <div class="converter-grid">
+            <!-- Input Section -->
+            <div class="panel input-panel glass-effect">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-pen"></i> 入力テキスト</h2>
+                    <span class="char-count" id="charCount">0文字</span>
+                </div>
+                <textarea id="inputText" placeholder="変換したい文章を入力してください..."></textarea>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="panel controls-panel glass-effect">
+                <div class="control-group">
+                    <label>語調（トーン）</label>
+                    <div class="custom-select">
+                        <select id="toneSelect">
+                            <option value="keigo">敬語（丁寧な表現）</option>
+                            <option value="kenjougo">謙譲語（よりへりくだった表現）</option>
+                            <option value="tamego">タメ語（親しい人向け）</option>
+                            <option value="business">ビジネス（フォーマル）</option>
+                            <option value="poetic">ポエティック（感情豊か）</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>言語（翻訳）</label>
+                    <div class="custom-select">
+                        <select id="langSelect">
+                            <option value="ja">日本語（言語はそのまま）</option>
+                            <option value="en">英語 (English)</option>
+                            <option value="zh">中国語 (Chinese)</option>
+                            <option value="ko">韓国語 (Korean)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="convertBtn" class="primary-btn">
+                    <span>変換を実行する</span>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </button>
+                
+                <div class="api-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    現在デモモードです（LLM連携のUIモックアップ）
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="panel output-panel glass-effect">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-check-double"></i> 変換結果</h2>
+                    <button id="copyBtn" class="icon-btn" title="クリップボードにコピー">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="output-container">
+                    <div id="outputText" class="output-area placeholder">
+                        結果がここに表示されます。
+                    </div>
+                    <!-- Loading Animation -->
+                    <div id="loadingIndicator" class="loading-overlay hidden">
+                        <div class="loader"></div>
+                        <p>AIが変換中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
