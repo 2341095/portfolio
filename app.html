@@ -95,6 +95,33 @@
                         <p>AIが変換中...</p>
                     </div>
                 </div>
+                <!-- Save Controls -->
+                <div class="save-controls">
+                    <input type="text" id="categoryInput" placeholder="区分けタグ (例: 仕事用)" class="category-input">
+                    <button id="saveBtn" class="secondary-btn" disabled>
+                        <i class="fa-solid fa-bookmark"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="history-section panel glass-effect" style="margin-top: 2rem;">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> 保存された履歴</h2>
+                <div class="history-controls">
+                    <select id="historyFilter" class="filter-select custom-select-inner">
+                        <option value="all">すべての区分</option>
+                    </select>
+                    <button id="clearHistoryBtn" class="icon-btn" title="履歴をすべて削除" style="color: #ef4444;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="history-grid" id="historyGrid">
+                <div class="history-empty" style="color: var(--text-muted); text-align: center; padding: 2rem;">
+                    保存された履歴はありません。
+                </div>
             </div>
         </div>
     </main>

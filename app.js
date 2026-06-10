@@ -8,6 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const toneSelect = document.getElementById('toneSelect');
     const langSelect = document.getElementById('langSelect');
 
+    // 履歴・区分けUI
+    const saveBtn = document.getElementById('saveBtn');
+    const categoryInput = document.getElementById('categoryInput');
+    const historyFilter = document.getElementById('historyFilter');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const historyGrid = document.getElementById('historyGrid');
+
+    // 履歴データのロード
+    let historyData = JSON.parse(localStorage.getItem('kensakuHistory')) || [];
+    renderHistory();
+
     // 文字数カウント機能
     inputText.addEventListener('input', () => {
         const length = inputText.value.length;
@@ -60,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // UI状態の更新
         convertBtn.disabled = true;
+        saveBtn.disabled = true;
         outputText.classList.remove('placeholder');
         outputText.textContent = '';
         loadingIndicator.classList.remove('hidden');
@@ -96,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await new Promise(r => setTimeout(r, Math.floor(Math.random() * 20) + 10));
         }
         convertBtn.disabled = false;
+        saveBtn.disabled = false;
     }
 
     // コピー機能
@@ -122,4 +135,127 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('コピーに失敗しました。');
         });
     });
+
+    // 履歴・区分け機能の実装
+    saveBtn.addEventListener('click', () => {
+        const text = inputText.value.trim();
+        const result = outputText.textContent.trim();
+        if (!text || !result || outputText.classList.contains('placeholder')) return;
+
+        const category = categoryInput.value.trim() || '未分類';
+        const tone = toneSelect.options[toneSelect.selectedIndex].text;
+        const lang = langSelect.options[langSelect.selectedIndex].text;
+
+        const historyItem = {
+            id: Date.now().toString(),
+            original: text,
+            converted: result,
+            tone: tone,
+            lang: lang,
+            category: category,
+            date: new Date().toLocaleString('ja-JP')
+        };
+
+        historyData.unshift(historyItem);
+        localStorage.setItem('kensakuHistory', JSON.stringify(historyData));
+        
+        // 保存成功のエフェクト
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> 保存しました';
+        saveBtn.style.color = '#10b981';
+        
+        setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.style.color = '';
+        }, 2000);
+
+        renderHistory();
+    });
+
+    historyFilter.addEventListener('change', () => {
+        renderHistory();
+    });
+
+    clearHistoryBtn.addEventListener('click', () => {
+        if (confirm('すべての履歴を削除しますか？')) {
+            historyData = [];
+            localStorage.removeItem('kensakuHistory');
+            renderHistory();
+        }
+    });
+
+    // 履歴の描画とフィルタリング
+    function renderHistory() {
+        if (historyData.length === 0) {
+            historyGrid.innerHTML = '<div class="history-empty" style="color: var(--text-muted); text-align: center; padding: 2rem;">保存された履歴はありません。</div>';
+            updateFilterOptions();
+            return;
+        }
+
+        const selectedCategory = historyFilter.value;
+        const filteredData = selectedCategory === 'all' 
+            ? historyData 
+            : historyData.filter(item => item.category === selectedCategory);
+
+        if (filteredData.length === 0) {
+            historyGrid.innerHTML = '<div class="history-empty" style="color: var(--text-muted); text-align: center; padding: 2rem;">該当する履歴はありません。</div>';
+        } else {
+            historyGrid.innerHTML = filteredData.map(item => `
+                <div class="history-card">
+                    <div class="history-card-header">
+                        <span class="history-tag">${escapeHtml(item.category)}</span>
+                        <span class="history-meta">${item.date}</span>
+                    </div>
+                    <div class="history-meta" style="margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-sliders"></i> ${item.tone} / ${item.lang}
+                    </div>
+                    <div class="history-text-preview" title="元のテキスト:\n${escapeHtml(item.original)}">
+                        ${escapeHtml(item.converted)}
+                    </div>
+                    <div class="history-actions">
+                        <button class="icon-btn delete-item-btn" data-id="${item.id}" title="削除">
+                            <i class="fa-solid fa-trash-can" style="font-size: 0.9rem;"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // 個別削除ボタンのイベント追加
+            document.querySelectorAll('.delete-item-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    historyData = historyData.filter(item => item.id !== id);
+                    localStorage.setItem('kensakuHistory', JSON.stringify(historyData));
+                    renderHistory();
+                });
+            });
+        }
+
+        updateFilterOptions();
+    }
+
+    function updateFilterOptions() {
+        const categories = [...new Set(historyData.map(item => item.category))];
+        const currentValue = historyFilter.value;
+        
+        let optionsHtml = '<option value="all">すべての区分</option>';
+        categories.forEach(cat => {
+            optionsHtml += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+        });
+        
+        historyFilter.innerHTML = optionsHtml;
+        if (categories.includes(currentValue) || currentValue === 'all') {
+            historyFilter.value = currentValue;
+        }
+    }
+
+    // XSS対策
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
 });
